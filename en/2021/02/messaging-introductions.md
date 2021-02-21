@@ -4,7 +4,7 @@ published: true
 description: 'Messaging is one of the pillars for distributed architectures to be sustainable. Here we will showcase basic theoretical concepts such as Messages and their types, as well as Transport Channels and their types.'
 tags: ['distributedsystems','architecture','messaging','dotnet']
 cover_image:
-ms.date: 02/21/2021
+date: 2021-02-21
 canonical_url: 'https://mateuscviegas.net/2021/02/messaging-introduction'
 ---
 
