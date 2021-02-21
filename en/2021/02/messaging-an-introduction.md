@@ -5,7 +5,7 @@ description: 'Messaging is one of the pillars for distributed architectures to b
 tags: ['distributedsystems','architecture','messaging','dotnet']
 cover_image:
 date: 2021-02-21
-canonical_url: 'https://mateuscviegas.net/2021/02/messaging-introduction'
+canonical_url: 'https://mateuscviegas.net/2021/02/messaging-an-introduction'
 ---
 
 # *tl/dr*
