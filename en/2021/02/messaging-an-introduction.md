@@ -45,7 +45,7 @@ Even with modern concepts such as Task-based programming in C#, the so called *a
 
 That whole explanation was to clarify that executions with the `async` keyword are, from a *temporal* perspective, still synchronous. The overall response time still depends on the database execution. Or, perhaps, on another external and unstable web API/system. And that's why this type of coupling is called **temporal coupling** and might be an issue if you need an application to be responsive.
 
-Messaging allows us to remove temporal coupling by deferring requests to be executed either in background or by third-party applications. In this case, a system component sends a message containing some sort of data through a channel and another system component, which is connected to this channel, receives this message and execute. Therefore, the component that sends the message is temporal coupled only to the message dispatching and not to an entire ecosystem of dependencies that there might exist.
+Messaging allows us to remove temporal coupling by deferring requests to be executed either in background or by third-party applications. In this case, a system component sends a message containing some sort of data through a channel and another system component, which is connected to this channel, receives this message and execute. Therefore, the component that sends the message is temporaly coupled only to the message dispatching and not to an entire ecosystem of dependencies that there might exist.
 
 # Message Types
 
