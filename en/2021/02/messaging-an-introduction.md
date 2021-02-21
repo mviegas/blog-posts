@@ -108,4 +108,4 @@ Messages are a nice concept and are very fundamental when we talk about distribu
 
 In this introductory post, we showcased how we exchange temporal for loose coupling with messaging, and why it my good. We introduced basic message types, channel types and also discussed briefly about the consequences of introducing messaging to a system.
 
-On the next post will showcase an abstraction of the concepts showcased in this introduction: removing temporal coupling in a web API sendi messages via channels created with C# and the System.Threading.Channels library.
+On the next post will showcase an abstraction of the concepts showcased here: we will remove temporal coupling in a web API by sending messages via channels created with C# and the *System.Threading.Channels* library.
