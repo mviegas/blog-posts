@@ -106,6 +106,6 @@ There are still many other trade-offs of applying messaging and distributing you
 
 Messages are a nice concept and are very fundamental when we talk about distributed systems and architectures. The concept itself is an abstraction, which implementations are diverse, as well as the possible infrastructure resources to handle it. 
 
-In this introductory post, we showcased how we exchange temporal for loose coupling with messaging, and why it my good. We introduced basic message types, channel types and also discussed briefly about the consequences of introducing messaging to a system.
+In this introductory post, we showcased how we exchange temporal for loose coupling with messaging, and why it might be good. We also introduced basic message types, channel types and also discussed briefly about the consequences of introducing messaging to a system.
 
 On the next post will showcase an abstraction of the concepts showcased here: we will remove temporal coupling in a web API by sending messages via channels created with C# and the *System.Threading.Channels* library.
