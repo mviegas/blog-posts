@@ -13,8 +13,11 @@ canonical_url: 'https://mateuscviegas.net/2021/02/messaging-an-introduction'
 This post is the first one of a series about basic concepts within distributed architectures. 
 
 1) Messaging: An introduction
+
 2) Messaging: Practical basic concepts with System.Threading.Channels
+
 3) Messaging: Interaction Styles
+
 4) Messaging: Consistency and Resiliency Patterns
 
 The goal of this series is to provide new venturers on distributed systems world with basic concepts of messaging, the tradeoffs of this kind of resource and how to provide solutions for some of these tradeoffs in order to achieve the most important benefit of messaging: loose coupling and high scalability within a distributed architecture.
@@ -34,12 +37,13 @@ As pretty as it might seems, one question remains though: why would we want to m
 A system usually has some IO-bounded dependencies, like databases, external APIs, email sender services, blob storages, or even another systems, between many more. Each time a request cross an IO boundary and has to access either disk or network, we are dependent on the response of the request in order the calling thread continue its execution. 
 
 Even with modern concepts such as Task-based programming in C#, the called "asynchronous" code is, de facto, async only from a thread perspective. This means, talking here in a really rough manner, that applications like an web API, will still have the incoming requests waiting for each one of these async blocks of code to complete in order respond the client. This asynchronicity here relies only on the not locking CPU resources while IO operations are in place, since there's a limited number of threads to execute CPU-bounded operations on the thread pool. Imagine the following situation:
-* There's an incoming request;
-* This request does a query to the database and return a response with the result;
-    * Since database queries are IO operations, the calling thread might be blocked while awaits for the database to execute the query. If the database is, by any means, overlodaded, it might take a while. In this case, imagine that there are multiple requests coming in. Since the number of threads is limited, there might come a time when there's no more free threads to handle incoming requests: starvation happens.
-    * Now, imagine that these incoming requests access the database via an `async` method that executes the query. When that happens, a state machine is created with the request context and the control of this state machine is passed to a new IO-bounded thread, so the CPU-bounded calling thread gets free to be used by any other incoming request. This IO-bounded thread executes its operation on the database and, since it has this state machine, it might have a *continuation* through a *synchronization context* indicating what to do next, a.k.a., how to provide a response to the API request with the query result. In this case, we give some buffer for our application performace, allowing our thread pool to relies only on CPU-bounded work.
 
-That whole explanation was to clarify that this execution is, from the **temporal** perspective, still synchronous. The overall response time still depends on the database execution. Or, perhaps, on another external and unstable web API. And that's why this type of coupling is called *temporal coupling* and might be an issue if you need an application to be responsive.
+- There's an incoming request;
+- This request does a query to the database and return a response with the result;
+    - Since database queries are IO operations, the calling thread might be blocked while awaits for the database to execute the query. If the database is, by any means, overlodaded, it might take a while. In this case, imagine that there are multiple requests coming in. Since the number of threads is limited, there might come a time when there's no more free threads to handle incoming requests: starvation happens.
+    - Now, imagine that these incoming requests access the database via an `async` method that executes the query. When that happens, a state machine is created with the request context and the control of this state machine is passed to a new IO-bounded thread, so the CPU-bounded calling thread gets free to be used by any other incoming request. This IO-bounded thread executes its operation on the database and, since it has this state machine, it might have a *continuation* through a *synchronization context* indicating what to do next, a.k.a., how to provide a response to the API request with the query result. In this case, we give some buffer for our application performace, allowing our thread pool to relies only on CPU-bounded work.
+
+That whole explanation was to clarify that this execution is, from the *temporal* perspective, still synchronous. The overall response time still depends on the database execution. Or, perhaps, on another external and unstable web API. And that's why this type of coupling is called **temporal coupling** and might be an issue if you need an application to be responsive.
 
 Messaging allows us to remove temporal coupling by deferring requests to be executed either in background or by third-party applications. In this case, a system component sends a message containing some sort of data through a channel and another system component, which is connected to this channel, receives this message and execute. Therefore, the component that sends the message is temporal coupled only to the message dispatching and not to an entire ecosystem of dependencies that there might exist.
 
@@ -96,7 +100,7 @@ However, just as anything regarding to software engineering and architecture, me
 
 Therefore, since all the communication between the systems rely on a central piece of communication, the messaging infrastructure, it becomes a requirement that this piece has a very high level of availability. 
 
-There still many other trade-offs of applying messaging and distributing your system, such as maintanence, monitoring and development complexity introduced by many side-effects caused by the decoupling, and we will talk more in detail about them on the next posts of this series. 
+There are still many other trade-offs of applying messaging and distributing your system, such as maintanence, monitoring and development complexity introduced by many side-effects caused by the decoupling, and we will talk more in detail about them on the next posts of this series. 
 
 # Wrap-up
 
