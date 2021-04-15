@@ -1,5 +1,5 @@
 ---
-title: 'Messaging: practical basic concepts with System.Threading.Channels'
+title: 'Messaging: Point-to-point Channels and Competing Consumers'
 published: false
 description: 'In this post, we will showcase an abstraction of messaging channels using the System.Threading.Channels library.'
 tags: ['distributedsystems','architecture','messaging','dotnet']
@@ -12,15 +12,17 @@ canonical_url: 'https://mateuscviegas.net/2021/02/messaging-concepts-system-thre
 This post is the second one of a series about basic concepts within distributed architectures.
 
 1) Messaging: An introduction
-2) Messaging: Practical basic concepts with System.Threading.Channels
+2) Messaging: Point-to-point channels and Competing Consumers
 3) Messaging: Interaction Styles
 4) Messaging: Consistency and Resiliency Patterns
 
 The goal of this series is to provide new venturers on distributed systems world with basic concepts of messaging, the tradeoffs of this kind of resource and how to provide solutions for some of these tradeoffs in order to achieve the most important benefit of messaging: loose coupling and high scalability within a distributed architecture.
 
-In this post, we will showcase an abstraction of a messaging channel using the System.Threading.Channels library. If you are not familiar with it yet, I have [a post explaining the purpose and APIs in this library more in depth](https://mateuscviegas.net/2020/06/intro-system-threading-channels/).
+In this post, we will showcase more in depth the concept of **point-to-point channels** using the System.Threading.Channels library, as well as introduce a very common caveat within messaging architectures. If you are not familiar with the mentioned library yet, I have [a post explaining the purpose and APIs in this library more in depth](https://mateuscviegas.net/2020/06/intro-system-threading-channels/).
 
-## Delegating an incoming request to a background handler
+> Disclaimer: even-though these concepts are language-agnostic, the examples over this post will be showcased with C# and .NET 5.
+
+## Deffering requests, but why?
 
 The use case we are going to showcase here it is one pretty common within the messaging world: an web API receives an incoming request that needs to be processed in background in an asynchronous manner, in order to provide API clients a fast response time. In this scenario, these sort of web APIs would:
 
@@ -37,15 +39,36 @@ Finally, this message would then be transported over this channel to be processe
 
 If we need to decouple our API response times from the above situations, than messaging and a fire-and-forget asynchronous execution come both in hand, since, as we've seen, there will be only one dependency that will affect the response latency: the message publishing.
 
-## Trade-offs of this approach
+## Point-to-point channels
 
-However, just as anything regarding to software engineering and architecture, messaging has its trade-offs. By delegating the message handling to an external consumer via a message channel we introduce a **single point of failure**: the messaging infrastructure. A single point of failure, commonly named SPOF, it is a component within a system that, if fails, will stop the entire system of working.
+As seen on the introductory post, these type of channels imply that a given message published on a given channel will be received by one and only given consumer. We can emulate point-to-point channels in two manners: in-process, with a asynchronous handling delegated to consumers on a dettached CPU thread, and out-of-process, with the async handling delegated via an external infrastructure to consumers connected to it.
 
-Another limitation is if a response that depends on the request execution is required to to be returned to the client. Since the execution is deferred for an asynchronous execution, this kind of responses cannot be given by the application. We are limited to very few information on the background.
+One limitation of using point-to-point channels approach is if a response which depends on the request execution output is required to to be returned to the client. Since the execution is deferred as asynchronous, this kind of responses cannot be given by the application. We are limited to the information available at the time of request.
+
+### In-process
+
+For this category, each language will have its own options. For C#, [Hangfire queue-based processing](https://www.hangfire.io/features.html) is an example of in-process point-to-point channels, as it uses threads with different execution context to dettach a producer from a consumer. As we'll see on the example later on, the [System.Threading.Channels library]() can also be used in a similar way.
+### Out-of-process
+
+Examples for out-of-process point-to-point channels, i.e. with an extra layer of infrastructure, are [Azure Service Bus Queues](https://docs.microsoft.com/en-gb/azure/service-bus-messaging/service-bus-queues-topics-subscriptions#queues) or a combination of [RabbitMQ Direct Exchange + Queue](https://www.rabbitmq.com/tutorials/tutorial-two-dotnet.html). There's a lot of tutorial over these two on the internet, if you might want to look out.
+
+For out-of-process messaging we introduce a **single point of failure**: the messaging infrastructure. A single point of failure, commonly named SPOF, it is a component within a system that, if fails, will stop the entire system of working.
 
 One more bottleneck might be debugging: how do we track errors/tracings accross a transaction distributed over one or more several components within a system?
 
-Therefore, it only makes sense to decouple a request execution from its caller via message, when there's an *actual need* justifying the extra complexity, such the ones mentioned on the previous section. Do not fall into trap of overengineering applications to messaging architectures without having to: you will find your self spending more time to trace errors, adding extra costs for a high-available messaging infrastructure that will have to be maintained either by a specialized team or a cloud provider, adding operational complexity by having to deploy and monitor multiple applications instead of one and needing to increase the expertise of the development team in order to deal with all of these issues.
+> It only makes sense to decouple a request execution from its caller via message, when there's an *actual need* justifying the extra complexity, such the ones mentioned on the previous section. Do not fall into trap of overengineering applications to messaging architectures without having to: you will find yourself spending more time to trace errors, adding extra costs for a high-available messaging infrastructure that will have to be maintained either by a specialized team or a cloud provider, adding operational complexity by having to deploy and monitor multiple applications instead of one and needing to increase the expertise of the development team in order to deal with all of these issues.
+
+## Competing Consumers
+
+Since for point-to-point channels a message can only be consumed by a single receiver, what happens when we have more than one receiver attached ot it? This is when the concept of **competing consumers** comes in.
+
+With only a single consumer per message, if there's more than one consumer connected to a point-to-point channel, the channels will compete for the messages and while one processes it, the others will be idle until a new message arrives and the competition starts again. In practice, messaging infrastructures have their own specific implementation on how this concurrency is executed.
+
+This scenario is interesting to **increase the channel throughput**. If the messages are not being consumed as fast as they're being published to the channel, increasing the number of competing consumers would then clear the queue buffer faster as well. These could be achieved by either/both simply increasing the number of consumer threads in-memory or using horizontal scaling to increase the number of consumers externally.
+
+Some considerations on this scenario is that *usually ordering is not guaranteed* and therefore the message consumption should be **idempotent**, that is, they should be independent of order. 
+
+// FIXME: Improve this here, still not clear
 
 ## Practical Example
 
