@@ -12,9 +12,9 @@ canonical_url: 'https://mateuscviegas.net/2021/02/messaging-an-introduction'
 
 This post is the first one of a series about basic concepts within distributed architectures. 
 
-1) Messaging: An introduction
-2) Messaging: Point-to-point channels and Competing Consumers
-3) Messaging: Interaction Styles
+1) [Messaging: An introduction](https://mateuscviegas.net/2021/02/messaging-an-introduction)
+2) [Messaging: Point-to-point with System.Threading.Channels](https://mateuscviegas.net/2021/02/messaging-concepts-system-threading-channels)
+3) Messaging: Idempotency and Delivery Types
 4) Messaging: Consistency and Resiliency Patterns
 
 The goal of this series is to provide new venturers on distributed systems world with basic concepts of messaging, the tradeoffs of this kind of resource and how to provide solutions for some of these tradeoffs in order to achieve the most important benefit of messaging: loose coupling and high scalability within a distributed architecture.

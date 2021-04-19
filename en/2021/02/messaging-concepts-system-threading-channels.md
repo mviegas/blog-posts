@@ -1,7 +1,7 @@
 ---
-title: 'Messaging: Point-to-point Channels and Competing Consumers'
+title: 'Messaging: Point-to-point with System.Threading.Channels'
 published: false
-description: 'In this post, we will showcase an abstraction of messaging channels using the System.Threading.Channels library.'
+description: 'In this post, we will showcase an abstraction of point-to-point messaging channels using the System.Threading.Channels library.'
 tags: ['distributedsystems','architecture','messaging','dotnet']
 cover_image:
 canonical_url: 'https://mateuscviegas.net/2021/02/messaging-concepts-system-threading-channels'
@@ -11,9 +11,9 @@ canonical_url: 'https://mateuscviegas.net/2021/02/messaging-concepts-system-thre
 
 This post is the second one of a series about basic concepts within distributed architectures.
 
-1) Messaging: An introduction
-2) Messaging: Point-to-point channels and Competing Consumers
-3) Messaging: Interaction Styles
+1) [Messaging: An introduction](https://mateuscviegas.net/2021/02/messaging-an-introduction)
+2) [Messaging: Point-to-point with System.Threading.Channels](https://mateuscviegas.net/2021/02/messaging-concepts-system-threading-channels)
+3) Messaging: Idempotency and Delivery Types
 4) Messaging: Consistency and Resiliency Patterns
 
 The goal of this series is to provide new venturers on distributed systems world with basic concepts of messaging, the tradeoffs of this kind of resource and how to provide solutions for some of these tradeoffs in order to achieve the most important benefit of messaging: loose coupling and high scalability within a distributed architecture.
@@ -58,27 +58,15 @@ One more bottleneck might be debugging: how do we track errors/tracings accross 
 
 > It only makes sense to decouple a request execution from its caller via message, when there's an *actual need* justifying the extra complexity, such the ones mentioned on the previous section. Do not fall into trap of overengineering applications to messaging architectures without having to: you will find yourself spending more time to trace errors, adding extra costs for a high-available messaging infrastructure that will have to be maintained either by a specialized team or a cloud provider, adding operational complexity by having to deploy and monitor multiple applications instead of one and needing to increase the expertise of the development team in order to deal with all of these issues.
 
-## Competing Consumers
-
-Since for point-to-point channels a message can only be consumed by a single receiver, what happens when we have more than one receiver attached ot it? This is when the concept of **competing consumers** comes in.
-
-With only a single consumer per message, if there's more than one consumer connected to a point-to-point channel, the channels will compete for the messages and while one processes it, the others will be idle until a new message arrives and the competition starts again. In practice, messaging infrastructures have their own specific implementation on how this concurrency is executed.
-
-This scenario is interesting to **increase the channel throughput**. If the messages are not being consumed as fast as they're being published to the channel, increasing the number of competing consumers would then clear the queue buffer faster as well. These could be achieved by either/both simply increasing the number of consumer threads in-memory or using horizontal scaling to increase the number of consumers externally.
-
-Some considerations on this scenario is that *usually ordering is not guaranteed* and therefore the message consumption should be **idempotent**, that is, they should be independent of order. 
-
-// FIXME: Improve this here, still not clear
-
 ## Practical Example
 
 Consider a simple web API written in C# and .NET. This API will have one single endpoint to receive a request and will forward this request as a message through a channel, acting as a *producer*. The channel will deliver the message to a connected *consumer* that, finally, will handle this message on the background as a [BackgroundService](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/host/hosted-services?view=aspnetcore-5.0&tabs=visual-studio).
 
 ### Message Helpers
 
-Consider that in this example we have a `MessageHeaders` class that contains the description of basic headers that will be sent with our messages:
-* `MessageId`: with an unique identifier of the sent message, applications are not only able to identify a message, but also to use this id to guarantee they process each message only once, achieving *idempotency*, a subject that will be aborded on the next post of this series. For now, you only need to now that idempotency means the guarantee that the message is processed only once.
-* `CorrelationId`, that will send actually an identifier of the request where the message was originated. These kind identifiers ids particularly useful in a scenario we briefly described within the trade-offs section earlier on: in distributed applications, it is hard to debug the end-to-end operation and identify where things might go wrong. By sharing a correlation id on messages, we can rely to our logging mechanisms to match multiple messages that belong to a single operation. This approach is pretty common when we want to apply a technique called *distributed tracing*, that basically allows us to monitor a distributed operation that is executed across several components of a distributed system. But this is a subject for another more advanced series.
+Consider that in this example we have a `MessageHeaders` class that contains the description of basic *headers* that will be sent with our messages:
+* `MessageId`: with an unique identifier of the sent message, applications are not only able to identify a message, but also to use this id to guarantee they process each message only once, allowing *idempotence* to be introduced. Idempotence is a math concept that means that an operation which was executed multiple times has no other result than the one achieved from the first execution.
+* `CorrelationId`: that will send actually an identifier of the request where the message was originated. These kind identifiers ids particularly useful in a scenario we briefly described within the trade-offs section earlier on: in distributed applications, it is hard to debug the end-to-end operation and identify where things might go wrong. By sharing a correlation id on messages, we can rely to logging and tracing mechanisms to match multiple messages that belong to a single operation. This approach is pretty common when we want to apply a technique called *distributed tracing*, that basically allows us to monitor a distributed operation that is executed across several components of a distributed system. But this is a subject for another more advanced series.
 
 ```csharp
  public class MessageHeaders
@@ -102,7 +90,7 @@ public class Message<T>
 }
 ```
 
-On the above class we make use of the [System.Diagnostics.Activity](https://docs.microsoft.com/en-us/dotnet/api/system.diagnostics.activity?view=net-5.0) class to retrieve metadata from the current operation beeing executed. Here we set the current operation `Id` as the correlation id of our message so that we have the capability of tracking the operation which originated the message Also, we create a new unique `Guid` to be used as the message id.
+On the above code we make use of the [System.Diagnostics.Activity](https://docs.microsoft.com/en-us/dotnet/api/system.diagnostics.activity?view=net-5.0) class to retrieve metadata from the current operation beeing executed. Here we set our message the correlation id as the `Activity.Current.Id` so that we have the capability of tracking the operation where the message originated. Also, we create a new unique `Guid` to be used as the message id.
 
 ### Producer
 
@@ -230,11 +218,11 @@ Here you could check that the `CorrelationId` message header we mentioned earlie
 
 ## Wrap-up
 
-This post was the second one in our series about basic messaging concepts. Here we showcased the decoupling of requests using a fire-and-forget approach by delegating their execution with a message transported through a channel to a consumer, using abstract concepts from the System.Threading.Channels library.
+This post was the second one in our series about basic messaging concepts. Here we showcased the decoupling of requests using a fire-and-forget approach by delegating their execution with a message transported through a channel to a consumer, using the in-mem abstractions from the System.Threading.Channels library.
 
 To know how to work with messaging is important, but even more important is to know why and when, since it introduces more points of failure and more complexity for development, maintenance and monitoring. It also limits the kind of responses that a web API can return, since the request execution is deferred for a decoupled consumer, that might be another application.
 
-Stay tuned, on the next post of this series we will talk a little bit more about messaging interaction styles, such as RPC and fire-and-forget, which we introduced here, as well as issues that may arise in each one of these styles and how to deal with them.
+Stay tuned, on the next post of this series we will talk a little bit more about a common and tricky scenario from point-to-point channels and its relation to three different message delivery types.
 
 You can find the entire source code of this example in this [GitHub repository](https://github.com/mviegas/messaging-channels-example).
 
