@@ -1,6 +1,6 @@
 ---
 title: 'Messaging: Point-to-point with System.Threading.Channels'
-published: false
+published: true
 description: 'In this post, we will showcase an abstraction of point-to-point messaging channels using the System.Threading.Channels library.'
 tags: ['distributedsystems','architecture','messaging','dotnet']
 cover_image:
