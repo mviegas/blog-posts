@@ -1,9 +1,9 @@
 ---
 title: Improving Problem Solving in Engineering Teams
+draft: true
 description: "This post aims to provide a practical explanation about System.Threading.Channels API and how it might be handy to implement pub/sub patterns to enable communication between Tasks"
 language: en
 # date: 2021-04-28
-draft: true
 ---
 
 ## How I came to this subject

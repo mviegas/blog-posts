@@ -1,6 +1,6 @@
 ---
 title: 'Messaging: Idempotence and Delivery Types'
-published: true
+draft: true
 description: 'What happens when we have multiple consumers to a single message? And if the message arrives more than one time? In this post, Idempotence will be showcased, as well as its relation to three delivery types.'
 tags: ['distributedsystems','architecture','messaging','dotnet']
 # date: 2021-04-30
