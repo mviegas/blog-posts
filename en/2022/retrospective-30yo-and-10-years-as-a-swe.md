@@ -1,4 +1,12 @@
-# Retrospective: 30 years old and 10 years as a SWE
+---
+title: 'Retrospective: 30 years old and 10 years as a SWE'
+published: true
+tags: ['carreer','leadership','growth']
+date: 2022-01-26
+canonical_url: 'https://mateuscviegas.net/2022/01/retrospective-30yo-and-10-years-as-a-swe'
+---
+
+## *tl/dr*
 
 Well, tomorrow I turn into 30 years old and this month I completed a 10-year journey as a Software Engineer, being the last 3 years as an Engineering Lead in Product companies, something that I always aimed for and which I'm pretty much realized for being able to do.
 
