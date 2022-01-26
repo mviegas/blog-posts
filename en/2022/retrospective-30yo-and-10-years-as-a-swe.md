@@ -42,10 +42,11 @@ Below are some of these learnings that were lying in my notes for the last year 
 
 ——
 
-These are not meant to be a “source of truth”, but just a sharing of my own notes throughout this beautifully crazy leadership journey. Surely there were a lot more that got lost throughout the way, but overall, these are very important in my daily life. Hope it is useful to someone else. Thanks for everyone who shared a bit of it with me, from my wife to work colleagues, family and close friends. You folks were fundamental for making me a better leader and a better person. That’s what made me share this with the world as well. Thanks if you spent time to read this as well.
+These are not meant to be a “source of truth”, but just a sharing of my own notes throughout this beautifully crazy leadership journey. Surely there were a lot more that got lost throughout the way, but overall, these are very important in my daily life. Hope it is useful to someone else. Thanks for everyone who shared a bit of it with me, from my wife to work colleagues, family and close friends. You folks were fundamental for making me a better leader and a better person. That’s what made me share this with the world as well. 
+
+Thanks if you spent time reading this. :)
 
 Time to celebrate my 30yo.
 
-Cheers.
-
+Cheers,
 Mateus
